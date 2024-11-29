@@ -1,4 +1,4 @@
-// apiKey-"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"
+// apiKey-""
 
 //completion model
 For - single task (Q/A,classification,categorization sentiment Analysis and etc)
