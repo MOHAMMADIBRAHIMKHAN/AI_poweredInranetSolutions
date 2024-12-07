@@ -22,20 +22,21 @@ from dotenv import load_dotenv
 import os
 
 @app.get('/api')
-async def get_api():
+async def get_api(query: str):
 
    load_dotenv()
-   client = OpenAI(api_key = os.getenv("OPENAI_API_KEY") ) # type: ignore
+   client = OpenAI(api_key = os.getenv("OPENAI_API_KEY") ) 
+   # type: ignore
 
    completion = client.chat.completions.create(
     model="gpt-4o-mini",
     messages=[
     {"role": "system", "content": "You are a helpful assistant."},
-    {"role": "user", "content": "Tell me about temperature in llms"}
+    {"role": "user", "content": query}
   ],
      temperature=0.7
 )
 
    message = completion.choices[0].message.content
-   return {"respoonse":message}
-
+   print(message)
+   return {"response": message}

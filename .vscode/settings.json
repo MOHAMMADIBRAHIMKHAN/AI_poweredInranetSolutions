@@ -1,0 +1,7 @@
+{
+    "files.autoSave": "afterDelay",
+    "editor.codeActionsOnSave": {
+
+    },
+    "editor.defaultFormatter": "ms-python.flake8"
+}
