@@ -1,61 +1,45 @@
-import React ,{useState,useEffect} from 'react'
-import ChatWindow from './ChatWindow';
-import ChatInput from './ChatInput'
+import React, { useState } from "react";
+import ChatWindow from "./ChatWindow";
+import ChatInput from "./ChatInput";
 import "./App.css";
-
+import { sendMessageToAPI } from "./apiHelper";
 
 function App() {
-  const [data, setData] = useState([{}])
-  const [messages,setMessages] = useState([
+  const [messages, setMessages] = useState([
     {
-      sender:"bot", text :"How can i assist you today?"
+      sender: "bot",
+      text: "How can I assist you today?",
     },
-  ])
+  ]);
 
-  const handleSendMessage = (message) => {
+  const handleSendMessage = async (message) => {
     setMessages((prevMessages) => [
       ...prevMessages,
-      {sender:"user",text:message},
-      {sender:"bot",text:"This is a saample response"},//put api logic here 
+      { sender: "user", text: message },
     ]);
-  }
 
-  useEffect(() => {
-     fetch("/random").then(
-      res => res.json()
-    ).then(
-       data => {
-        setData(data)
-        console.log(data)
-       }
-    )
-  }, [])
-  useEffect(() => {
-    fetch("/api").then(
-     res => res.json()
-   ).then(
-      data => {
-       setData(data)
-       console.log(data)
-      }
-   )
- }, [])
+    try {
+      const botResponse = await sendMessageToAPI(message);
+      console.log("Bot Response:", botResponse); // Debug log
+      setMessages((prevMessages) => [
+        ...prevMessages,
+        { sender: "bot", text: botResponse },
+      ]);
+    } catch (error) {
+      console.error("Error handling message:", error);
+      setMessages((prevMessages) => [
+        ...prevMessages,
+        { sender: "bot", text: "Sorry, there was an error processing your request." },
+      ]);
+    }
+  };
+
   return (
-    <div className='app'>
-          {/* {!data ? (
-            <p>Loading...</p>
-          ): (
-            <div>
-              <p>Random Number: {data.number}</p>
-              <p>Limit: {data.limit}</p>
-            </div>
-          )}*/}
-       <ChatWindow messages={messages} />
-       <ChatInput onSendMessage={handleSendMessage} />
-          
+    <div className="app">
+      <ChatWindow messages={messages} />
+      <ChatInput onSendMessage={handleSendMessage} />
     </div>
-    
-  )
+  );
 }
 
-export default App
+export default App;
