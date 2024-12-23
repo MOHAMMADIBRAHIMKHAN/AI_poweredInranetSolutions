@@ -1,3 +1,9 @@
 numpy
 pandas
 python-dotenv
+fastapi
+uvicorn
+python-dotenv
+langchain
+faiss-cpu
+openai

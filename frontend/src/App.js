@@ -2,7 +2,7 @@ import React, { useState } from "react";
 import ChatWindow from "./ChatWindow";
 import ChatInput from "./ChatInput";
 import "./App.css";
-import { sendMessageToAPI } from "./apiHelper";
+import { sendMessageToAPI, uploadFileToApi } from "./apiHelper";
 
 function App() {
   const [messages, setMessages] = useState([
@@ -11,6 +11,17 @@ function App() {
       text: "How can I assist you today?",
     },
   ]);
+
+const handleFileUpload = async (file) => {
+  try{
+const responseMessage = await uploadFileToApi(file)
+  alert(responseMessage);
+  }catch(error){
+    console.error("Error handling file upload:", error);
+    alert("There was an error uploading the file.");
+  }
+}
+
 
   const handleSendMessage = async (message) => {
     setMessages((prevMessages) => [
@@ -37,7 +48,7 @@ function App() {
   return (
     <div className="app">
       <ChatWindow messages={messages} />
-      <ChatInput onSendMessage={handleSendMessage} />
+      <ChatInput onSendMessage={handleSendMessage}  onFileUpload={handleFileUpload} />
     </div>
   );
 }
