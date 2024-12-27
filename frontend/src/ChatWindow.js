@@ -1,17 +1,33 @@
 import React from "react";
 
+function ChatWindow({ messages, isBotTyping }) {
+  const formatMessage = (text) => {
+    return text
+      ? text.split("\n").map((line, index) => (
+          <span key={index}>
+            {line}
+            <br />
+          </span>
+        ))
+      : null; // Handle cases where text is undefined
+  };
 
-function ChatWindow({ messages }) {
   return (
     <div className="chat-window">
-      {messages.map((message, index) => (
-        <div
-          key={index}
-          className={`message ${message.sender === "bot" ? "bot" : "user"}`}
-        >
-          {message.text}
+      {messages.map((msg, index) => (
+        <div key={index} className={`message ${msg.sender}`}>
+          {msg.sender === "bot" ? (
+            formatMessage(msg.text) // Format bot response
+          ) : (
+            msg.text
+          )}
         </div>
       ))}
+      {isBotTyping && (
+        <div className="message bot">
+          <span className="typing-indicator">...</span>
+        </div>
+      )}
     </div>
   );
 }

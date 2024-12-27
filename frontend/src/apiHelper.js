@@ -1,14 +1,17 @@
-export async function sendMessageToAPI(query) {
+// apiHelper.js
+export const sendMessageToAPI = async (message) => {
   try {
-    const response = await fetch("http://localhost:8000/api?query=" + encodeURIComponent(query));
+    const response = await fetch(`http://localhost:8000/api?query=${encodeURIComponent(message)}`);
+    if (!response.ok) {
+      throw new Error(`HTTP error! status: ${response.status}`);
+    }
     const data = await response.json();
-    console.log("API response:", data); // Log the response for debugging
-    return data.response;
+    return data.response; // Ensure this matches the backend response structure
   } catch (error) {
-    console.error("Error fetching API:", error);
-    return "Sorry, I couldn't process your request.";
+    console.error("Error fetching response from API:", error);
+    throw error;
   }
-}
+};
 
 export async function uploadFileToApi(file){
   const formData = new FormData();

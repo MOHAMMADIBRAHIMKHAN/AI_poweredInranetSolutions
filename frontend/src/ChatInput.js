@@ -1,51 +1,48 @@
 import React, { useState } from "react";
 
 
-function ChatInput({ onSendMessage }) {
+function ChatInput({ onSendMessage, onFileUpload }) {
   const [inputValue, setInputValue] = useState("");
-  const [ file , setFile] = useState(null);
 
-  const handleFileUpload = () => {
-   if (file) {
-   // onFileUpload(file);
-    setFile(null);
-   }else{
-    alert('Pleasse Select File To Upload')
-   }
-  }
+  const handleInputChange = (e) => {
+    setInputValue(e.target.value);
+  };
 
-  const handleSubmit = (e) => {
-    e.preventDefault();
-    if (inputValue.trim() === "") return;
-    onSendMessage(inputValue);
-    setInputValue("");
+  const handleKeyPress = (e) => {
+    if (e.key === "Enter") {
+      handleSendClick();
+    }
+  };
+
+  const handleSendClick = () => {
+    if (inputValue.trim() !== "") {
+      onSendMessage(inputValue);
+      setInputValue("");
+    }
+  };
+
+  const handleFileUpload = (e) => {
+    const file = e.target.files[0];
+    if (file) {
+      onFileUpload(file);
+    }
   };
 
   return (
-    <form className="chat-input" onSubmit={handleSubmit}>
+    <div className="chat-input">
+      <label className="file-upload">
+        📎
+        <input type="file" onChange={handleFileUpload} style={{ display: "none" }} />
+      </label>
       <input
         type="text"
         value={inputValue}
-        onChange={(e) => setInputValue(e.target.value)}
-        placeholder="Type a message..."
+        onChange={handleInputChange}
+        onKeyPress={handleKeyPress}
+        placeholder="Type your message..."
       />
-      <button className="send-button" type="submit">
-        Send
-        </button>
-        {/* <div className="file-input-container">
-          <input
-          type="file"
-          onChange={(e) => {
-            setFile(e.target.files[0])
-          }}
-          />
-          <button className='button-upload' 
-          onClick={handleFileUpload}
-          type='submit'>
-            Upload  
-          </button>
-        </div> */}
-    </form>
+      <button onClick={handleSendClick}>Send</button>
+    </div>
   );
 }
 

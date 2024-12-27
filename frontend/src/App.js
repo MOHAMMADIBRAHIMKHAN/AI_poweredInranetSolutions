@@ -11,17 +11,17 @@ function App() {
       text: "How can I assist you today?",
     },
   ]);
+  const [isBotTyping, setIsBotTyping] = useState(false); // Track if bot is typing
 
-const handleFileUpload = async (file) => {
-  try{
-const responseMessage = await uploadFileToApi(file)
-  alert(responseMessage);
-  }catch(error){
-    console.error("Error handling file upload:", error);
-    alert("There was an error uploading the file.");
-  }
-}
-
+  const handleFileUpload = async (file) => {
+    try {
+      const responseMessage = await uploadFileToApi(file);
+      alert(responseMessage);
+    } catch (error) {
+      console.error("Error handling file upload:", error);
+      alert("There was an error uploading the file.");
+    }
+  };
 
   const handleSendMessage = async (message) => {
     setMessages((prevMessages) => [
@@ -29,15 +29,19 @@ const responseMessage = await uploadFileToApi(file)
       { sender: "user", text: message },
     ]);
 
+    setIsBotTyping(true); // Show the typing indicator
+
     try {
       const botResponse = await sendMessageToAPI(message);
-      console.log("Bot Response:", botResponse); // Debug log
+      setIsBotTyping(false); // Stop the typing indicator
+
       setMessages((prevMessages) => [
         ...prevMessages,
-        { sender: "bot", text: botResponse },
+        { sender: "bot", text: botResponse }, // Add backend response to messages
       ]);
     } catch (error) {
       console.error("Error handling message:", error);
+      setIsBotTyping(false); // Stop the typing indicator
       setMessages((prevMessages) => [
         ...prevMessages,
         { sender: "bot", text: "Sorry, there was an error processing your request." },
@@ -47,8 +51,8 @@ const responseMessage = await uploadFileToApi(file)
 
   return (
     <div className="app">
-      <ChatWindow messages={messages} />
-      <ChatInput onSendMessage={handleSendMessage}  onFileUpload={handleFileUpload} />
+      <ChatWindow messages={messages} isBotTyping={isBotTyping} />
+      <ChatInput onSendMessage={handleSendMessage} onFileUpload={handleFileUpload} />
     </div>
   );
 }
