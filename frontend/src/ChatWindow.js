@@ -2,14 +2,18 @@ import React from "react";
 
 function ChatWindow({ messages, isBotTyping }) {
   const formatMessage = (text) => {
-    return text
-      ? text.split("\n").map((line, index) => (
-          <span key={index}>
-            {line}
-            <br />
-          </span>
-        ))
-      : null; // Handle cases where text is undefined
+    if (!text) return null;
+
+    // Replace newlines with <br> and return as HTML
+    const formattedText = text.replace(/\n/g, "<br />");
+
+    return (
+      <span
+        dangerouslySetInnerHTML={{
+          __html: formattedText, // Render HTML with <strong> and <br>
+        }}
+      />
+    );
   };
 
   return (
@@ -17,9 +21,9 @@ function ChatWindow({ messages, isBotTyping }) {
       {messages.map((msg, index) => (
         <div key={index} className={`message ${msg.sender}`}>
           {msg.sender === "bot" ? (
-            formatMessage(msg.text) // Format bot response
+            formatMessage(msg.text) // Format bot response with HTML
           ) : (
-            msg.text
+            msg.text // Plain text for user messages
           )}
         </div>
       ))}

@@ -13,12 +13,12 @@ export const sendMessageToAPI = async (message) => {
   }
 };
 
-export async function uploadFileToApi(file){
+export async function uploadFileToApi(file_path){
   const formData = new FormData();
-  formData.append('file',file);
+  formData.append('file',file_path);
 
   try {
-  const response = await fetch("http://localhost:8000/api/upload_document/", {
+  const response = await fetch(`http://localhost:8000/api/upload_document/`, {
     method : 'POST',
     body : formData,
   });

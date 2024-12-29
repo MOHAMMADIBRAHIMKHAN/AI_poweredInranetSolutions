@@ -76,13 +76,13 @@ def process_file(file_path):
         raise ValueError("Unsupported file type. Please provide a .txt or .pdf file.")
 
 # Example usage to process a file
-file_path = "documents/bank policy document sample.pdf"  # Replace with your file path
-if os.path.exists(file_path):
-    try:
-        file_content = process_file(file_path)
-        store_embeddings_in_pinecone([file_content])
-        print(f"File '{file_path}' processed and data stored in Pinecone!")
-    except ValueError as e:
-        print(e)
-else:
-    print(f"File '{file_path}' does not exist!")
+# file_path = "documents/bank policy document sample.pdf"  # Replace with your file path
+# if os.path.exists(file_path):
+#     try:
+#         file_content = process_file(file_path)
+#         store_embeddings_in_pinecone([file_content])
+#         print(f"File '{file_path}' processed and data stored in Pinecone!")
+#     except ValueError as e:
+#         print(e)
+# else:
+#     print(f"File '{file_path}' does not exist!")

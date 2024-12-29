@@ -1,4 +1,4 @@
-from fastapi import FastAPI, HTTPException
+from fastapi import FastAPI, File, HTTPException, UploadFile
 from fastapi.middleware.cors import CORSMiddleware
 from langchain.memory import ConversationBufferMemory
 from langchain.prompts import PromptTemplate
@@ -7,6 +7,8 @@ from dotenv import load_dotenv
 import os
 import logging
 from Search import search  # Import the `search` function
+from vector_db import process_file, store_embeddings_in_pinecone 
+import re
 
 logging.basicConfig(level=logging.INFO)
 
@@ -38,6 +40,12 @@ PromptTemplate = (
     "Please provide your response with line breaks (\\n) preserved where applicable."
 )
 
+def format_response_with_bold(response:str) -> str:
+     """
+    Replaces *keyword* in the response with <strong>keyword</strong> for bold formatting.
+    """
+     return re.sub(r"\*(.*?)\*", r"<bold>\1</bold>", response)
+
 def run_chain(query: str, context: str, client, memory):
     """
     Run the chain to generate a response based on context and memory.
@@ -67,12 +75,13 @@ def run_chain(query: str, context: str, client, memory):
 
         # Extract and return the response
         response = completion.choices[0].message.content
+        formatted_response = format_response_with_bold(response)
 
         # Update memory with user query and model response
         memory.chat_memory.add_user_message(query)
-        memory.chat_memory.add_ai_message(response)
+        memory.chat_memory.add_ai_message(formatted_response)
 
-        return response
+        return formatted_response
 
     except Exception as e:
         logging.error(f"Error in chain execution: {str(e)}")
@@ -109,3 +118,33 @@ async def get_api(query: str):
     except Exception as e:
         logging.error(f"Error: {str(e)}")
         raise HTTPException(status_code=500, detail=str(e))
+
+
+@app.post("/api/upload_document/")
+async def upload_document(file: UploadFile = File(...)):
+    """
+    Endpoint to upload a document and store its contents in Pinecone.
+    """
+    try:
+        # Save the uploaded file temporarily
+        temp_file_path = f"temp_{file.filename}"
+        with open(temp_file_path, "wb") as temp_file:
+            content = await file.read()
+            temp_file.write(content)
+
+        # Process the file and store embeddings in Pinecone
+        logging.info(f"Processing file: {temp_file_path}")
+        file_content = process_file(temp_file_path)
+        store_embeddings_in_pinecone([file_content])
+
+        # Remove the temporary file after processing
+        os.remove(temp_file_path)
+
+        return {"message": f"File '{file.filename}' uploaded and processed successfully!"}
+    except ValueError as e:
+        logging.error(f"Error processing file: {str(e)}")
+        raise HTTPException(status_code=400, detail=str(e))
+    except Exception as e:
+        logging.error(f"Unexpected error: {str(e)}")
+        raise HTTPException(status_code=500, detail="An error occurred while processing the file.")
+                
