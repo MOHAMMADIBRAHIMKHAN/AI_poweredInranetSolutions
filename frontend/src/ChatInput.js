@@ -3,6 +3,7 @@ import React, { useState } from "react";
 
 function ChatInput({ onSendMessage, onFileUpload }) {
   const [inputValue, setInputValue] = useState("");
+  const [isInputSent, setisInputSent] = useState(false)
 
   const handleInputChange = (e) => {
     setInputValue(e.target.value);
@@ -18,6 +19,8 @@ function ChatInput({ onSendMessage, onFileUpload }) {
     if (inputValue.trim() !== "") {
       onSendMessage(inputValue);
       setInputValue("");
+      setisInputSent(true); // to move the input bar down
+      setTimeout(() => setisInputSent(true),setInputValue("")) // reset after the animation 
     }
   };
 
@@ -29,6 +32,7 @@ function ChatInput({ onSendMessage, onFileUpload }) {
   };
 
   return (
+    <div className={`chat-input-container ${isInputSent ? "bottom" : "center"}`}>
     <div className="chat-input">
       <label className="file-upload">
         📎
@@ -43,7 +47,8 @@ function ChatInput({ onSendMessage, onFileUpload }) {
       />
       <button onClick={handleSendClick}>Send</button>
     </div>
-  );
+  </div>
+);
 }
 
 export default ChatInput;

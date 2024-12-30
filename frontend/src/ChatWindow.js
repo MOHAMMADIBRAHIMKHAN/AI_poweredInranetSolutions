@@ -29,7 +29,11 @@ function ChatWindow({ messages, isBotTyping }) {
       ))}
       {isBotTyping && (
         <div className="message bot">
-          <span className="typing-indicator">...</span>
+          <span className="typing-indicator">
+            <span className="dot"></span>
+            <span className="dot"></span>
+            <span className="dot"></span>
+          </span>
         </div>
       )}
     </div>
