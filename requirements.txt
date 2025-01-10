@@ -7,3 +7,4 @@ python-dotenv
 langchain
 faiss-cpu
 openai
+duckduckgo-search

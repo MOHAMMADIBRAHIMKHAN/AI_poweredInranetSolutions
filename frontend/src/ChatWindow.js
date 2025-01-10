@@ -10,7 +10,7 @@ function ChatWindow({ messages, isBotTyping }) {
     return (
       <span
         dangerouslySetInnerHTML={{
-          __html: formattedText, // Render HTML with <strong> and <br>
+          __html: formattedText,
         }}
       />
     );
@@ -20,11 +20,7 @@ function ChatWindow({ messages, isBotTyping }) {
     <div className="chat-window">
       {messages.map((msg, index) => (
         <div key={index} className={`message ${msg.sender}`}>
-          {msg.sender === "bot" ? (
-            formatMessage(msg.text) // Format bot response with HTML
-          ) : (
-            msg.text // Plain text for user messages
-          )}
+          {msg.sender === "bot" ? formatMessage(msg.text) : msg.text}
         </div>
       ))}
       {isBotTyping && (

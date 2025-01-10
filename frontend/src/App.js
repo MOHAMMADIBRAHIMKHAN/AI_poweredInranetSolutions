@@ -1,58 +1,133 @@
-import React, { useState } from "react";
+import React, { useState, useEffect } from "react";
 import ChatWindow from "./ChatWindow";
 import ChatInput from "./ChatInput";
 import "./App.css";
+import "./sideBarMenu"
 import { sendMessageToAPI, uploadFileToApi } from "./apiHelper";
+import { SideMenuBtn } from "./sideBarMenu";
 
 function App() {
-  const [messages, setMessages] = useState([
-    {
-      sender: "bot",
-      text: "How can I assist you today?",
-    },
-  ]);
-  const [isBotTyping, setIsBotTyping] = useState(false); // Track if bot is typing
+  const [messages, setMessages] = useState([]);
+  const [isBotTyping, setIsBotTyping] = useState(false);
+  const [chatHistory, setChatHistory] = useState([]);
+  const [isSidebarOpen, setIsSidebarOpen] = useState(false); // Sidebar toggle
+  const [hasInteracted, setHasInteracted] = useState(false); // Tracks if user has sent the first query
+
+  // Load chat history on component mount
+  useEffect(() => {
+    const savedHistory = JSON.parse(localStorage.getItem("chatHistory")) || [];
+    setChatHistory(savedHistory);
+    if (savedHistory.length > 0) {
+      setMessages(savedHistory[savedHistory.length - 1].messages);
+    }
+  }, []);
+
+  // Save chat history whenever messages change
+  useEffect(() => {
+    if (messages.length > 0) {
+      const updatedHistory = [
+        ...chatHistory.slice(0, -1),
+        { title: `Chat ${chatHistory.length + 1}`, messages },
+      ];
+      setChatHistory(updatedHistory);
+      localStorage.setItem("chatHistory", JSON.stringify(updatedHistory));
+    }
+  }, [messages]);
 
   const handleFileUpload = async (file) => {
     try {
       const responseMessage = await uploadFileToApi(file);
-      alert(responseMessage);
+      setMessages((prevMessages) => [
+        ...prevMessages,
+        { sender: "bot", text: responseMessage },
+      ]);
     } catch (error) {
       console.error("Error handling file upload:", error);
-      alert("There was an error uploading the file.");
+      setMessages((prevMessages) => [
+        ...prevMessages,
+        { sender: "bot", text: "There was an error uploading the file." },
+      ]);
     }
   };
 
   const handleSendMessage = async (message) => {
+    if (!hasInteracted) setHasInteracted(true); // Mark as interacted on first query
+
     setMessages((prevMessages) => [
       ...prevMessages,
       { sender: "user", text: message },
     ]);
 
-    setIsBotTyping(true); // Show the typing indicator
+    setIsBotTyping(true);
 
     try {
       const botResponse = await sendMessageToAPI(message);
-      setIsBotTyping(false); // Stop the typing indicator
-
       setMessages((prevMessages) => [
         ...prevMessages,
-        { sender: "bot", text: botResponse }, // Add backend response to messages
+        { sender: "bot", text: botResponse },
       ]);
     } catch (error) {
       console.error("Error handling message:", error);
-      setIsBotTyping(false); // Stop the typing indicator
       setMessages((prevMessages) => [
         ...prevMessages,
         { sender: "bot", text: "Sorry, there was an error processing your request." },
       ]);
+    } finally {
+      setIsBotTyping(false);
     }
+  };
+
+  const toggleSidebar = () => {
+    setIsSidebarOpen(!isSidebarOpen);
+  };
+
+  const handleNewChat = () => {
+    setMessages([]);
+    setHasInteracted(false);
+  };
+
+  const handleSelectChat = (index) => {
+    setMessages(chatHistory[index].messages);
+    setHasInteracted(true)
+    
   };
 
   return (
     <div className="app">
-      <ChatWindow messages={messages} isBotTyping={isBotTyping} />
-      <ChatInput onSendMessage={handleSendMessage} onFileUpload={handleFileUpload} />
+      <div className={`sidebar ${isSidebarOpen ? "open" : ""}`}>
+         <button className="close-btn" onClick={toggleSidebar}>
+          Close
+        </button> 
+        <h2>Chat History</h2>
+        <button onClick={handleNewChat} className="new-chat-btn">
+          New Chat
+        </button>
+        <ul>
+          {chatHistory.map((chat, index) => (
+            <li key={index} onClick={() => handleSelectChat(index)}>
+              {chat.title || `Chat ${index + 1}`}
+            </li>
+          ))}
+        </ul>
+      </div>
+    
+      <div
+        className={`chat-window-wrapper ${
+          isSidebarOpen ? "sidebar-open" : ""
+        }`}
+      >
+        <ChatWindow messages={messages} isBotTyping={isBotTyping} />
+      </div>
+      <div
+        className={`chat-input-container ${
+          hasInteracted ? "bottom" : "center"
+        }`}
+      >
+        <ChatInput
+          onSendMessage={handleSendMessage}
+          onFileUpload={handleFileUpload}
+        />
+      </div>
     </div>
   );
 }

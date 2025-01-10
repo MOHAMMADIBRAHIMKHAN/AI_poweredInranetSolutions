@@ -38,7 +38,6 @@ PromptTemplate = (
     "Chat History:\n{chat_history}\n\n"
     "Query: {query}\n"
     "Please provide your response with line breaks (\\n) preserved where applicable."
-    "Please do not show '\n' in output"
 )
 
 def format_response_with_bold(response:str) -> str:
