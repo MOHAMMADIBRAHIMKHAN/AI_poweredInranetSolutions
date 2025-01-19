@@ -1,4 +1,5 @@
-from fastapi import FastAPI, File, HTTPException, UploadFile
+from unittest.mock import Base
+from fastapi import Depends, FastAPI, File, HTTPException, UploadFile
 from fastapi.middleware.cors import CORSMiddleware
 from langchain.memory import ConversationBufferMemory
 from langchain.prompts import PromptTemplate
@@ -6,10 +7,14 @@ from openai import OpenAI
 from dotenv import load_dotenv
 import os
 import logging
+import json
+from requests import Session
 from Search import search  # Import the `search` function
 from vector_db import process_file, store_embeddings_in_pinecone 
 import re
-
+from dataBase import Base ,engine , get_db
+from sqlalchemy.orm import session
+from models import Chat
 logging.basicConfig(level=logging.INFO)
 
 app = FastAPI()
@@ -23,6 +28,8 @@ app.add_middleware(
     allow_headers=["*"],
 )
 
+# Ensure the database tables are created
+Base.metadata.create_all(bind=engine)
 load_dotenv()  # Load environment variables at app startup
 
 # Memory for conversation context
@@ -147,4 +154,62 @@ async def upload_document(file: UploadFile = File(...)):
     except Exception as e:
         logging.error(f"Unexpected error: {str(e)}")
         raise HTTPException(status_code=500, detail="An error occurred while processing the file.")
-                
+    
+
+
+@app.post("/api/chats")
+def save_chat(chat: dict, db: Session = Depends(get_db)):
+    try:
+        new_chat = Chat(
+            title=chat["title"],
+            messages=json.dumps(chat["messages"]),
+        )
+        db.add(new_chat)
+        db.commit()
+        db.refresh(new_chat)
+        return {"message": "Chat saved successfully", "chat_id": new_chat.id}
+    except Exception as e:
+        raise HTTPException(status_code=500, detail="Error saving chat")
+
+@app.get("/api/chats/{chat_id}")
+def get_chat(chat_id: int, db: Session = Depends(get_db)):
+    try:
+        chat = db.query(Chat).filter(Chat.id == chat_id).first()
+        if not chat:
+            raise HTTPException(status_code=404, detail="Chat not found")
+        return {"id": chat.id, "title": chat.title, "messages": json.loads(chat.messages)}
+    except Exception as e:
+        raise HTTPException(status_code=500, detail="Error retrieving chat")
+    
+@app.get("/api/chats")
+def get_all_chats(db: Session = Depends(get_db)):
+    """
+    Retrieve all chats from the database.
+    """
+    try:
+        chats = db.query(Chat).all()  # Fetch all rows from the Chat table
+        if not chats:
+            raise HTTPException(status_code=404, detail="No chats found")
+        
+        # Format the response as a list of dictionaries
+        return {
+            "chats": [
+                {"id": chat.id, "title": chat.title, "messages": json.loads(chat.messages)}
+                for chat in chats
+            ]
+        }
+    except Exception as e:
+        raise HTTPException(status_code=500, detail=f"Error retrieving chats: {str(e)}")
+
+
+@app.delete("/api/chats/{chat_id}")
+def delete_chat(chat_id: int, db: Session = Depends(get_db)):
+    try:
+        chat = db.query(Chat).filter(Chat.id == chat_id).first()
+        if not chat:
+            raise HTTPException(status_code=404, detail="Chat not found")
+        db.delete(chat)
+        db.commit()
+        return {"message": "Chat deleted successfully"}
+    except Exception as e:
+        raise HTTPException(status_code=500, detail="Error deleting chat")
