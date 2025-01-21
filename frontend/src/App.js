@@ -4,12 +4,12 @@ import ChatInput from "./ChatInput";
 import "./App.css";
 import {
   fetchChatHistory,
-  fetchSelectedChat,
   saveChatToDatabase,
   deleteChatFromDatabase,
   uploadFileToApi,
   sendMessageToAPI,
 } from "./apiHelper";
+import sidebarIcon from './assets/sidebar-right-svgrepo-com.svg';
 
 function App() {
   const [messages, setMessages] = useState([]);
@@ -116,8 +116,11 @@ function App() {
   return (
     <div className="app">
       <div className={`sidebar ${isSidebarOpen ? "open" : ""}`}>
-        <button className="close-btn" onClick={toggleSidebar}>
-          Close
+       <button className="close-btn" onClick={toggleSidebar}>
+         <img
+         src={sidebarIcon}
+         alt="Close Sidebar"
+        />
         </button>
         <h2>Chat History</h2>
         <button onClick={handleNewChat} className="new-chat-btn">
@@ -133,7 +136,7 @@ function App() {
                 className="delete-chat-btn"
                 onClick={() => handleDeleteChat(chat.id)}
               >
-                Delete
+                🗑️
               </button>
             </li>
           ))}

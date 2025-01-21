@@ -32,12 +32,8 @@ body {
 }
 
 .sidebar .close-btn {
-  align-self: flex-end;
-  background-color: #007bff;
-  color: #fff;
-  border: none;
-  border-radius: 5px;
-  padding: 5px ;
+  padding-left: 220px;
+  border:none;
   cursor: pointer;
 }
 
@@ -80,6 +76,7 @@ body {
 
 .delete-chat-btn {
   background-color: #dc3545;
+  inset:auto;
   color: white;
   border: none;
   border-radius: 5px;
