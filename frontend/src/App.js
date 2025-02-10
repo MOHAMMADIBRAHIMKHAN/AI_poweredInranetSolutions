@@ -9,7 +9,8 @@ import {
   uploadFileToApi,
   sendMessageToAPI,
 } from "./apiHelper";
-import sidebarIcon from './assets/sidebar-right-svgrepo-com.svg';
+import rightSidebarIcon from './assets/sidebar-right-svgrepo-com.svg';
+import leftSidebarIcon from './assets/sidebar-left-svgrepo-com.svg'
 
 function App() {
   const [messages, setMessages] = useState([]);
@@ -118,7 +119,7 @@ function App() {
       <div className={`sidebar ${isSidebarOpen ? "open" : ""}`}>
        <button className="close-btn" onClick={toggleSidebar}>
          <img
-         src={sidebarIcon}
+         src={isSidebarOpen ? leftSidebarIcon : rightSidebarIcon}
          alt="Close Sidebar"
         />
         </button>
@@ -129,9 +130,9 @@ function App() {
         <ul>
           {chatHistory.map((chat,index) => (
             <li key={chat.id || `chat-${index}`} className="chat-history-item">
-              <span onClick={() => handleSelectChat(index)}>
+              <button type="submit" onClick={() => handleSelectChat(index)}>
               {chat.title || `Chat ${index + 1}`}
-              </span>
+              </button>
               <button
                 className="delete-chat-btn"
                 onClick={() => handleDeleteChat(chat.id)}

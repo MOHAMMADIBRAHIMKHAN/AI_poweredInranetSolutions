@@ -75,7 +75,7 @@ body {
 }
 
 .delete-chat-btn {
-  background-color: #dc3545;
+  background-color:grey400;
   inset:auto;
   color: white;
   border: none;

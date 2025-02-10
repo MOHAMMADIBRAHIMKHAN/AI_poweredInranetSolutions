@@ -57,8 +57,8 @@ export const saveChatToDatabase = async (title, messages) => {
 };
 
 // Fetch all chat metadata (titles and IDs)
-export const fetchChatHistory = async () => {
-  const response = await fetch("http://localhost:8000/api/chats");
+export const fetchChatHistory = async (title , message) => {
+  const response = await fetch("http://localhost:8000/api/chats/");
   if (!response.ok) {
     throw new Error("Error fetching chat history");
   }
