@@ -1,4 +1,13 @@
-AI_poweredIntranetSolutions - AI-Powered Intranet Chat System  
+# AI_poweredIntranetSolutions - AI-Powered Intranet Chat System  
+
+https://img.shields.io/badge/Python-3.9+-blue?logo=python
+https://img.shields.io/badge/FastAPI-0.95+-teal?logo=fastapi
+https://img.shields.io/badge/React-18+-61DAFB?logo=react
+https://img.shields.io/badge/LangChain-Enabled-green 
+https://img.shields.io/badge/Pinecone-Vector%20DB-purple  
+https://img.shields.io/badge/SQLite-Database-blue?logo=sqlite  
+ 
+
 An AI-powered intranet chat platform with a ChatGPT-like interface. It allows users to upload documents, query them using natural language, and retrieve contextual answers. The system integrates **LangChain**, **Pinecone Vector DB**, and **SQLite** for document intelligence and conversation history management.  
 
 ---
